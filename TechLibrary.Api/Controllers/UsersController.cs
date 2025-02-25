@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TechLibrary.Communication.Requests;
+using TechLibrary.Communication.Responses;
 
 namespace TechLibrary.Api.Controllers;
 
@@ -7,7 +9,8 @@ namespace TechLibrary.Api.Controllers;
 public class UsersController : ControllerBase
 {
     [HttpPost]
-    public IActionResult Register()
+    [ProducesResponseType(typeof(ResponseRegisteredUserJson), StatusCodes.Status201Created)]
+    public IActionResult Register(RequestUserJson request)
     {
         return Created();
     }
