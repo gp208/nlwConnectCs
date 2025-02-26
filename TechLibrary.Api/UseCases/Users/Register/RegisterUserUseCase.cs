@@ -1,4 +1,7 @@
-﻿using TechLibrary.Communication.Requests;
+﻿using Microsoft.AspNetCore.Identity;
+using TechLibrary.Api.Domain.Entities;
+using TechLibrary.Api.Infrastructure;
+using TechLibrary.Communication.Requests;
 using TechLibrary.Communication.Responses;
 using TechLibrary.Exception;
 
@@ -9,9 +12,21 @@ public class RegisterUserUseCase
     public ResponseRegisteredUserJson Execute(RequestUserJson request)
     {
         Validate(request);
+
+        var entity = new User
+        {
+            Email = request.Email,
+            Name = request.Name,
+            Password = request.Password
+        };
+
+        var dbContext = new TechLibraryDbContext();
+        dbContext.Users.Add(entity); // table name
+        dbContext.SaveChanges();
+
         return new ResponseRegisteredUserJson
         {
-
+            Name = entity.Name
         };
     }
     private void Validate(RequestUserJson request)
