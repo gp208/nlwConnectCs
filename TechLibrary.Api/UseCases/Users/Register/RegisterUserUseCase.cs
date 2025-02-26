@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using TechLibrary.Api.Domain.Entities;
-using TechLibrary.Api.Infrastructure;
+﻿using TechLibrary.Api.Domain.Entities;
+using TechLibrary.Api.Infrastructure.DataAccess;
+using TechLibrary.Api.Infrastructure.Security.Cryptography;
 using TechLibrary.Communication.Requests;
 using TechLibrary.Communication.Responses;
 using TechLibrary.Exception;
@@ -13,11 +13,12 @@ public class RegisterUserUseCase
     {
         Validate(request);
 
+        var cryptography = new BCryptAlgorithm();
         var entity = new User
         {
             Email = request.Email,
             Name = request.Name,
-            Password = request.Password
+            Password = cryptography.HashPassword(request.Password)
         };
 
         var dbContext = new TechLibraryDbContext();
