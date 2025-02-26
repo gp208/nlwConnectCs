@@ -1,4 +1,5 @@
-﻿using TechLibrary.Api.Domain.Entities;
+﻿using FluentValidation.Results;
+using TechLibrary.Api.Domain.Entities;
 using TechLibrary.Api.Infrastructure.DataAccess;
 using TechLibrary.Api.Infrastructure.Security.Cryptography;
 using TechLibrary.Communication.Requests;
@@ -11,7 +12,8 @@ public class RegisterUserUseCase
 {
     public ResponseRegisteredUserJson Execute(RequestUserJson request)
     {
-        Validate(request);
+        var dbContext = new TechLibraryDbContext();
+        Validate(request, dbContext);
 
         var cryptography = new BCryptAlgorithm();
         var entity = new User
@@ -21,7 +23,6 @@ public class RegisterUserUseCase
             Password = cryptography.HashPassword(request.Password)
         };
 
-        var dbContext = new TechLibraryDbContext();
         dbContext.Users.Add(entity); // table name
         dbContext.SaveChanges();
 
@@ -30,10 +31,15 @@ public class RegisterUserUseCase
             Name = entity.Name
         };
     }
-    private void Validate(RequestUserJson request)
+    private void Validate(RequestUserJson request, TechLibraryDbContext dbContext)
     {
         var validator = new RegisterUserValidator();
         var result = validator.Validate(request);
+        var existsUserWithEmail = dbContext.Users.Any(user => user.Email.Equals(request.Email)); // table name
+
+        if (existsUserWithEmail)
+            result.Errors.Add(new ValidationFailure("Email", "Email já existe"));
+
         if (result.IsValid==false)
         {
             var errorMessages = result.Errors.Select(error => error.ErrorMessage).ToList();
