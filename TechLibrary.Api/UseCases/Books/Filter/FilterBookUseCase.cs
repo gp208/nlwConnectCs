@@ -1,4 +1,5 @@
-﻿using TechLibrary.Api.Infrastructure.DataAccess;
+﻿using Microsoft.EntityFrameworkCore;
+using TechLibrary.Api.Infrastructure.DataAccess;
 using TechLibrary.Communication.Requests;
 using TechLibrary.Communication.Responses;
 
@@ -13,7 +14,7 @@ public class FilterBookUseCase
         var dbContext = new TechLibraryDbContext();
         var query = dbContext.Books.AsQueryable(); // table name
         if (string.IsNullOrWhiteSpace(request.Title) == false)
-            query = query.Where(book => book.Title.Contains(request.Title));
+            query = query.Where(book => EF.Functions.Like(book.Title, $"%{request.Title}%"));
 
         var books = query
             .OrderBy(book => book.Title).ThenBy(book => book.Author)
@@ -25,7 +26,7 @@ public class FilterBookUseCase
         if (string.IsNullOrWhiteSpace(request.Title))
             totalCount = dbContext.Books.Count(); // table name
         else // table name
-            totalCount = dbContext.Books.Count(book => book.Title.Contains(request.Title));
+            totalCount = dbContext.Books.Count(book => EF.Functions.Like(book.Title, $"%{request.Title}%"));
 
         return new ResponseBooksJson
             {
