@@ -11,25 +11,35 @@ public class FilterBookUseCase
     public ResponseBooksJson Execute(RequestFilterBooksJson request)
     {
         var dbContext = new TechLibraryDbContext();
-        var books = dbContext
-            .Books // table name
+        var query = dbContext.Books.AsQueryable(); // table name
+        if (string.IsNullOrWhiteSpace(request.Title) == false)
+            query = query.Where(book => book.Title.Contains(request.Title));
+
+        var books = query
             .OrderBy(book => book.Title).ThenBy(book => book.Author)
             .Skip((request.PageNumber - 1) * PAGE_SIZE)
             .Take(PAGE_SIZE)
             .ToList();
+
+        var totalCount = 0;
+        if (string.IsNullOrWhiteSpace(request.Title))
+            totalCount = dbContext.Books.Count(); // table name
+        else // table name
+            totalCount = dbContext.Books.Count(book => book.Title.Contains(request.Title));
+
         return new ResponseBooksJson
-        {
-            Pagination = new ResponsePaginationJson
             {
-                PageNumber = request.PageNumber,
-                TotalCount = dbContext.Books.Count() // table name
-            },
-            Books = books.Select(book => new ResponseBookJson
-            {
-                Id = book.Id,
-                Title = book.Title,
-                Author = book.Author
-            }).ToList()
-        };
+                Pagination = new ResponsePaginationJson
+                {
+                    PageNumber = request.PageNumber,
+                    TotalCount = totalCount
+                },
+                Books = books.Select(book => new ResponseBookJson
+                {
+                    Id = book.Id,
+                    Title = book.Title,
+                    Author = book.Author
+                }).ToList()
+            };
     }
 }
