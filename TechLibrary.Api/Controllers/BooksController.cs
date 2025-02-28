@@ -11,7 +11,6 @@ public class BooksController : ControllerBase
 {
     [HttpGet("Filter")]
     [ProducesResponseType(typeof(ResponseBooksJson), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult Filter(int pageNumber, string? title)
     {
         var useCase = new FilterBookUseCase();
@@ -20,8 +19,6 @@ public class BooksController : ControllerBase
             PageNumber = pageNumber,
             Title = title
         });
-        if (result.Books.Count > 0)
-            return Ok(result);
-        return NoContent();
+        return Ok(result);
     }
 }
