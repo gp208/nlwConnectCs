@@ -28,7 +28,7 @@ public class JwtTokenGenerator
     }
 
     private SymmetricSecurityKey SecurityKey()
-    {// signing key should be secret, not displayed in code
+    {// signing key should ideally be secret, not displayed in code
         var signingKey = "rg1Gz6LsvZqPUXPk605OUTO7BydfE7Gl";
         var symmetricKey = Encoding.UTF8.GetBytes(signingKey);
         return new SymmetricSecurityKey(symmetricKey);
