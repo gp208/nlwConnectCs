@@ -10,6 +10,9 @@ public class TechLibraryDbContext : DbContext
     public DbSet<Checkout> Checkouts { get; set; } // table name
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {// db file path
-        optionsBuilder.UseSqlite("Data Source=");
+        var basePath = Directory.GetCurrentDirectory();
+        basePath = Directory.GetParent(basePath)?.FullName;
+        var dbPath = Path.Combine(basePath, "TechLibraryDb.db");
+        optionsBuilder.UseSqlite($"Data Source={dbPath}");
     }
 }
